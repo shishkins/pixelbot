@@ -127,6 +127,7 @@ class PixelTod:
                     self.countdown(self.INTERVAL_DELAY)
                 except:
                     self.log(f"{merah} что-то пошло не так, продолжаю со следующего аккаунта")
+                    self.countdown(self.DEFAULT_COUNTDOWN)
             self.countdown(self.DEFAULT_COUNTDOWN)
 
     def countdown(self, t):
