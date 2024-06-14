@@ -224,8 +224,8 @@ class PixelTod:
         print(f"{hitam}[{now}]{reset} {message}")
 
     def http(self,url,headers,data=None):
+        counter = 0
         while True:
-            counter = 0
             proxy_headers = {
                 'https': self.current_account_proxy
             }
