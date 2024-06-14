@@ -116,18 +116,18 @@ class PixelTod:
                     username = user['username']
                     
                 self.log(f'{hijau}login as : {putih}{first_name} {last_name}')
-                try:
-                    secret = self.get_secret(userid)
-                    new_data = Data(data,userid,username,secret)
-                    self.get_me(new_data)
-                    self.daily_reward(new_data)
-                    self.get_mining_proccess(new_data)
-                    self.log(f'{hijau}login')
-                    print('~' * 50)
-                    self.countdown(self.INTERVAL_DELAY)
-                except:
-                    self.log(f"{merah} что-то пошло не так, продолжаю со следующего аккаунта")
-                    self.countdown(self.DEFAULT_COUNTDOWN)
+                # try:
+                secret = self.get_secret(userid)
+                new_data = Data(data,userid,username,secret)
+                self.get_me(new_data)
+                self.daily_reward(new_data)
+                self.get_mining_proccess(new_data)
+                self.log(f'{hijau}login')
+                print('~' * 50)
+                self.countdown(self.INTERVAL_DELAY)
+                # except:
+                #     self.log(f"{merah} что-то пошло не так, продолжаю со следующего аккаунта")
+                #     self.countdown(self.INTERVAL_DELAY)
             self.countdown(self.DEFAULT_COUNTDOWN)
 
     def countdown(self, t):
@@ -150,8 +150,12 @@ class PixelTod:
         headers['tg-id'] = data.userid
         if data.username is not None:
             headers['username'] = data.username
-            
+
         res = self.http(url,headers)
+        while not 'clicksCount' in res.json().keys():
+            self.log(f"{merah}trying again, maybe to many requests")
+            self.countdown(5)
+            res = self.http(url, headers)
         balance = res.json()['clicksCount']
         self.log(f'{hijau}total balance : {putih}{balance}')
         return
@@ -166,6 +170,11 @@ class PixelTod:
             headers['username'] = data.username
             
         res = self.http(url,headers)
+        while not 'todaysRewardAvailable' in res.json().keys():
+            self.log(f"{merah}trying again, maybe to many requests")
+            self.countdown(5)
+            res = self.http(url, headers)
+
         today_reward = res.json()['todaysRewardAvailable']
         if today_reward:
             url_claim = 'https://api-clicker.pixelverse.xyz/api/daily-rewards/claim'
@@ -188,6 +197,11 @@ class PixelTod:
             headers['username'] = data.username
             
         res = self.http(url,headers)
+        while (not 'currentlyAvailable' in res.json().keys()) or (not 'minAmountForClaim' in res.json().keys()) :
+            self.log(f"{merah}trying again, maybe to many requests")
+            self.countdown(5)
+            res = self.http(url, headers)
+
         available = res.json()['currentlyAvailable']
         min_claim = res.json()['minAmountForClaim']
         self.log(f'{putih}amount available : {hijau}{available}')
@@ -197,11 +211,11 @@ class PixelTod:
             if 'claimedAmount' not in res.json().keys():
                 self.log(f'{merah}claim failed, maybe to many request !')
                 return
-            
+
             claim_amount = res.json()['claimedAmount']
             self.log(f'{hijau}claim amount : {putih}{claim_amount}')
             return
-        
+
         self.log(f'{kuning}amount too small to make claim !')
         return
 
@@ -211,6 +225,7 @@ class PixelTod:
 
     def http(self,url,headers,data=None):
         while True:
+            counter = 0
             proxy_headers = {
                 'https': self.current_account_proxy
             }
@@ -232,7 +247,10 @@ class PixelTod:
             except (requests.exceptions.ConnectionError,requests.exceptions.ConnectTimeout,requests.exceptions.ReadTimeout,requests.exceptions.Timeout) as e:
                 self.log(f'{merah}connection error / connection timeout !')
                 open('.http.log', 'a', encoding='utf-8').write(f'{e}\n')
-                raise e
+                counter += 1
+                time.sleep(0.1)
+                if counter > 20:
+                    raise e
 
 if __name__ == "__main__":
     try:
