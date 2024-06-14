@@ -42,8 +42,8 @@ class PixelTod:
         }
 
         import proxies
-        import data
-        self.datas = data.dict_data
+        import data as full_data
+        self.datas = full_data.dict_data
         self.proxies = proxies.dict_proxies
         self.current_account_proxy = self.proxies[1]
     
