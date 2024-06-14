@@ -116,18 +116,18 @@ class PixelTod:
                     username = user['username']
                     
                 self.log(f'{hijau}login as : {putih}{first_name} {last_name}')
-                # try:
-                secret = self.get_secret(userid)
-                new_data = Data(data,userid,username,secret)
-                self.get_me(new_data)
-                self.daily_reward(new_data)
-                self.get_mining_proccess(new_data)
-                self.log(f'{hijau}login')
-                print('~' * 50)
-                self.countdown(self.INTERVAL_DELAY)
-                # except:
-                #     self.log(f"{merah} что-то пошло не так, продолжаю со следующего аккаунта")
-                #     self.countdown(self.INTERVAL_DELAY)
+                try:
+                    secret = self.get_secret(userid)
+                    new_data = Data(data,userid,username,secret)
+                    self.get_me(new_data)
+                    self.daily_reward(new_data)
+                    self.get_mining_proccess(new_data)
+                    self.log(f'{hijau}login')
+                    print('~' * 50)
+                    self.countdown(self.INTERVAL_DELAY)
+                except:
+                    self.log(f"{merah} что-то пошло не так, продолжаю со следующего аккаунта")
+                    self.countdown(self.INTERVAL_DELAY)
             self.countdown(self.DEFAULT_COUNTDOWN)
 
     def countdown(self, t):
